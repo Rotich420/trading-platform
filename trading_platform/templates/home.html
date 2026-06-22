@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}TradeX Pro — Trade Smarter{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block content %}
+<div class="landing-wrapper">
+    <div class="landing-inner">
+
+        <div class="landing-badge">
+            <span class="dot"></span>
+            Live Markets · Real-time Prices
+        </div>
+
+        <h1 class="landing-h1">
+            Trade with<br>
+            <span>Precision & Speed</span>
+        </h1>
+
+        <p class="landing-sub">
+            Professional-grade trading for crypto, forex, and equities.
+            Execute in milliseconds. Track everything in real time.
+        </p>
+
+        <div class="landing-cta">
+            {% if user.is_authenticated %}
+                <a class="btn-primary" href="/trading/dashboard/">
+                    Open Trading Terminal →
+                </a>
+                <a class="btn-secondary" href="/wallet/">
+                    My Wallet
+                </a>
+            {% else %}
+                <a class="btn-primary" href="/accounts/register/">
+                    Start Trading Free
+                </a>
+                <a class="btn-secondary" href="/accounts/login/">
+                    Sign In
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="landing-stats">
+            <div>
+                <div class="landing-stat-num">$2.4B+</div>
+                <div class="landing-stat-label">Daily Volume</div>
+            </div>
+            <div>
+                <div class="landing-stat-num">85%</div>
+                <div class="landing-stat-label">Max Payout</div>
+            </div>
+            <div>
+                <div class="landing-stat-num">50+</div>
+                <div class="landing-stat-label">Instruments</div>
+            </div>
+            <div>
+                <div class="landing-stat-num">24/7</div>
+                <div class="landing-stat-label">Markets Open</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

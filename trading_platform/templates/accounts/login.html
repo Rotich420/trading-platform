@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Sign In — TradeX Pro{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            <span class="auth-logo-dot"></span>
+            TradeX
+        </div>
+
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-subtitle">Sign in to your trading account</p>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="auth-form-group">
+                <label class="auth-label">Username</label>
+                <input class="auth-input" type="text" name="username" placeholder="Enter username" autocomplete="username">
+            </div>
+
+            <div class="auth-form-group">
+                <label class="auth-label">Password</label>
+                <input class="auth-input" type="password" name="password" placeholder="••••••••" autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="auth-submit">Sign In</button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="/accounts/register/">Create one free</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

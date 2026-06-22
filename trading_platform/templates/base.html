@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TradeX Pro{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="/trading/" class="brand">
+                <span class="brand-dot"></span>
+                TradeX
+            </a>
+            <div class="nav-links">
+                <a href="/trading/" class="{% block nav_home %}{% endblock %}">Markets</a>
+                <a href="/trading/dashboard/" class="{% block nav_dashboard %}{% endblock %}">Trade</a>
+                <a href="/wallet/" class="{% block nav_wallet %}{% endblock %}">Wallet</a>
+            </div>
+        </div>
+
+        <div class="navbar-right">
+            {% if user.is_authenticated %}
+                <div class="nav-balance">
+                    <span class="nav-balance-label">Balance</span>
+                    <span class="nav-balance-amount">${{ user.balance }}</span>
+                </div>
+                <div class="nav-user-pill">
+                    <div class="nav-avatar">{{ user.username|first|upper }}</div>
+                    <span class="nav-username">{{ user.username }}</span>
+                </div>
+                <a href="/accounts/logout/" class="nav-logout">Sign Out</a>
+            {% else %}
+                <a href="/accounts/login/" class="nav-btn nav-btn-outline">Log in</a>
+                <a href="/accounts/register/" class="nav-btn">Get Started</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% if messages %}
+    <div class="alert-wrapper">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+</body>
+</html>

@@ -1,0 +1,1992 @@
+{% extends 'base.html' %}
+{% block title %}Trade — TradeX Pro{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block extra_head %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* ═══════════ RESET ═══════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; }
+
+/* ═══════════ TOKENS ═══════════ */
+:root {
+  --bg0:    #060b14;
+  --bg1:    #0a1020;
+  --bg2:    #0e1628;
+  --bg3:    #131d30;
+  --bg4:    #182035;
+  --border: #1c2a42;
+  --border2:#253550;
+  --t1:     #e8f0ff;
+  --t2:     #8898b8;
+  --t3:     #3a4d6a;
+  --t4:     #1e2d45;
+  --green:  #00d68f;
+  --gd:     #00d68f18;
+  --red:    #ff3d5e;
+  --rd:     #ff3d5e18;
+  --blue:   #4d8ef5;
+  --bd:     #4d8ef518;
+  --gold:   #f5a623;
+  --mono:   'JetBrains Mono', monospace;
+}
+
+/* ═══════════ MODE BAR ═══════════ */
+.mode-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 18px;
+  height: 100%;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--t3);
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: all 0.15s;
+  margin-bottom: -1px;
+}
+
+.mode-btn:hover { color: var(--t2); }
+.mode-btn.on { color: var(--t1); border-bottom-color: var(--green); }
+.mode-btn.on.fx { border-bottom-color: var(--blue); }
+.mode-btn.on.bin { border-bottom-color: var(--gold); }
+
+.mode-icon { font-size: 0.9rem; }
+
+.mode-sep { width: 1px; height: 18px; background: var(--border); margin: 0 8px; }
+
+.mode-live {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.live-dot {
+  width: 5px; height: 5px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: livepulse 1.5s infinite;
+}
+
+@keyframes livepulse { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+
+/* ═══════════ MAIN LAYOUT ═══════════ */
+.t-wrap {
+  display: flex;
+  height: calc(100vh - 52px - 40px);
+  overflow: hidden;
+  background: var(--bg0);
+}
+
+/* ═══════════ LEFT SIDEBAR ═══════════ */
+.t-left {
+  width: 230px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg1);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.t-search-box {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.t-search-icon {
+  position: absolute;
+  left: 19px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--t3);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.t-search-box input {
+  width: 100%;
+  background: var(--bg0);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--t1);
+  font-size: 0.77rem;
+  padding: 7px 10px 7px 28px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.12s;
+}
+
+.t-search-box input:focus { border-color: var(--green); }
+.t-search-box input::placeholder { color: var(--t4); }
+
+.t-cat-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.t-cat {
+  flex: 1;
+  text-align: center;
+  padding: 7px 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--t3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.12s;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: none;
+  background: none;
+  font-family: inherit;
+  margin-bottom: -1px;
+}
+
+.t-cat:hover { color: var(--t2); }
+.t-cat.on { color: var(--green); border-bottom-color: var(--green); }
+
+.t-mkt-list { overflow-y: auto; flex: 1; }
+.t-mkt-list::-webkit-scrollbar { width: 2px; }
+.t-mkt-list::-webkit-scrollbar-thumb { background: var(--border); }
+
+.t-grp-hd {
+  padding: 10px 12px 5px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: var(--t4);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.t-mkt-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 9px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.t-mkt-row:hover { background: var(--bg2); }
+.t-mkt-row.on { background: var(--bg3); border-left-color: var(--green); }
+.t-mkt-row.on[data-mode="fx"] { border-left-color: var(--blue); }
+.t-mkt-row.on[data-mode="bin"] { border-left-color: var(--gold); }
+
+.t-mkt-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.t-mkt-info { flex: 1; min-width: 0; }
+
+.t-mkt-sym {
+  font-size: 0.79rem;
+  font-weight: 700;
+  color: var(--t1);
+  white-space: nowrap;
+}
+
+.t-mkt-name {
+  font-size: 0.62rem;
+  color: var(--t3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.t-mkt-vals { text-align: right; }
+
+.t-mkt-px {
+  font-size: 0.77rem;
+  font-weight: 600;
+  color: var(--t2);
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.t-mkt-chg {
+  font-size: 0.63rem;
+  font-weight: 700;
+  font-family: var(--mono);
+}
+
+.up { color: var(--green); }
+.dn { color: var(--red); }
+
+/* ═══════════ CENTER ═══════════ */
+.t-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Ticker */
+.t-ticker {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 50px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  gap: 14px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.tk-sym {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--t1);
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+
+.tk-px {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--t1);
+  font-family: var(--mono);
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+
+.tk-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.tk-badge.up { background: var(--gd); color: var(--green); border: 1px solid #00d68f35; }
+.tk-badge.dn { background: var(--rd); color: var(--red); border: 1px solid #ff3d5e35; }
+
+.tk-sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+
+.tk-stats { display: flex; gap: 20px; margin-left: auto; }
+
+.tk-stat { display: flex; flex-direction: column; gap: 1px; }
+
+.tk-stat-label {
+  font-size: 0.58rem;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.tk-stat-val {
+  font-size: 0.77rem;
+  font-weight: 600;
+  color: var(--t2);
+  font-family: var(--mono);
+}
+
+/* Toolbar */
+.t-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 10px;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tf-btn {
+  padding: 4px 9px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--t3);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  transition: all 0.1s;
+}
+
+.tf-btn:hover { color: var(--t1); background: var(--bg3); }
+.tf-btn.on { background: var(--bg3); color: var(--t1); border: 1px solid var(--border2); }
+
+.t-toolbar-sep { width: 1px; height: 14px; background: var(--border); margin: 0 5px; }
+
+/* Chart */
+.t-chart { flex: 1; overflow: hidden; min-height: 0; background: var(--bg0); }
+.t-chart > div { width: 100% !important; height: 100% !important; }
+
+/* Bottom positions panel */
+.t-bottom {
+  height: 165px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.t-btabs {
+  display: flex;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+
+.t-btab {
+  padding: 7px 14px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--t3);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.12s;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: -1px;
+}
+
+.t-btab:hover { color: var(--t2); }
+.t-btab.on { color: var(--t1); border-bottom-color: var(--green); }
+
+.t-pos-table-wrap { overflow-y: auto; flex: 1; }
+
+.t-pos-table { width: 100%; border-collapse: collapse; }
+
+.t-pos-table th {
+  position: sticky; top: 0;
+  padding: 6px 14px;
+  text-align: left;
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.t-pos-table td {
+  padding: 7px 14px;
+  font-size: 0.76rem;
+  border-bottom: 1px solid var(--bg2);
+  color: var(--t2);
+  font-family: var(--mono);
+  white-space: nowrap;
+}
+
+.t-pos-table tr:hover td { background: var(--bg2); }
+
+.t-empty {
+  padding: 30px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--t4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 0.63rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.badge-buy  { background: var(--gd); color: var(--green); border: 1px solid #00d68f30; }
+.badge-sell { background: var(--rd); color: var(--red); border: 1px solid #ff3d5e30; }
+.badge-open { background: var(--bd); color: var(--blue); border: 1px solid #4d8ef530; }
+.badge-bin  { background: #f5a62318; color: var(--gold); border: 1px solid #f5a62330; }
+.badge-won  { background: var(--gd); color: var(--green); border: 1px solid #00d68f30; }
+.badge-lost { background: var(--rd); color: var(--red); border: 1px solid #ff3d5e30; }
+
+/* ═══════════ RIGHT PANEL ═══════════ */
+.t-right {
+  width: 295px;
+  flex-shrink: 0;
+  background: var(--bg1);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.t-right::-webkit-scrollbar { width: 2px; }
+.t-right-scroll { overflow-y: auto; flex: 1; }
+.t-right-scroll::-webkit-scrollbar { width: 2px; }
+.t-right-scroll::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* Balance */
+.r-balance {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(160deg, #0e1a2e 0%, var(--bg1) 100%);
+}
+
+.r-bal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.r-bal-label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.r-live-badge {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.6rem; font-weight: 700; color: var(--green);
+}
+
+.r-live-dot {
+  width: 5px; height: 5px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: livepulse 1.5s infinite;
+}
+
+.r-bal-amount {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--t1);
+  font-family: var(--mono);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+
+.r-bal-sub {
+  font-size: 0.6rem;
+  color: var(--t4);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.r-bal-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.r-bal-btn {
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid var(--border2);
+  background: var(--bg0);
+  color: var(--t2);
+  cursor: pointer;
+  transition: all 0.12s;
+  text-decoration: none;
+  display: block;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+}
+
+.r-bal-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* Trade form */
+.r-form { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+
+.r-form-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.r-form-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--t1);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Mode-specific form panels */
+.form-panel { display: none; }
+.form-panel.on { display: block; }
+
+/* Field */
+.f-field { margin-bottom: 11px; }
+
+.f-label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 5px;
+}
+
+.f-select, .f-input {
+  width: 100%;
+  background: var(--bg0);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--t1);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 9px 12px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.12s;
+  appearance: none;
+}
+
+.f-select:focus, .f-input:focus { border-color: var(--green); }
+
+.f-select-wrap { position: relative; }
+.f-select-arr {
+  position: absolute; right: 10px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--t3); font-size: 0.6rem;
+  pointer-events: none;
+}
+
+.f-input { font-family: var(--mono); }
+.f-input::placeholder { color: var(--t4); }
+
+.f-prefix-wrap { position: relative; }
+.f-prefix {
+  position: absolute; left: 10px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem; color: var(--t3); font-weight: 600;
+  pointer-events: none;
+}
+
+.f-suffix {
+  position: absolute; right: 10px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.6rem; color: var(--t4); font-weight: 700;
+  letter-spacing: 0.08em; pointer-events: none;
+}
+
+.has-prefix { padding-left: 22px !important; }
+.has-suffix { padding-right: 38px !important; }
+
+/* Duration pills */
+.dur-row {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 11px;
+}
+
+.dur-row.cols5 { grid-template-columns: repeat(5,1fr); }
+.dur-row.cols4 { grid-template-columns: repeat(4,1fr); }
+
+.dur-pill {
+  padding: 6px 0;
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--t3);
+  background: var(--bg0);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.1s;
+  font-family: inherit;
+}
+
+.dur-pill:hover { color: var(--t1); }
+.dur-pill.on { background: var(--bg3); border-color: var(--green); color: var(--green); }
+.dur-pill.on.fx { border-color: var(--blue); color: var(--blue); }
+.dur-pill.on.bin { border-color: var(--gold); color: var(--gold); }
+
+/* Quick amounts */
+.quick-row {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 4px;
+  margin-bottom: 11px;
+}
+
+.q-btn {
+  padding: 5px 0;
+  text-align: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--t3);
+  background: var(--bg0);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.1s;
+}
+
+.q-btn:hover { color: var(--t1); border-color: var(--border2); }
+
+/* Payout box */
+.payout-box {
+  background: var(--bg0);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.payout-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.payout-lbl { font-size: 0.68rem; color: var(--t3); }
+
+.payout-val {
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--t2);
+}
+
+.payout-val.big {
+  font-size: 0.95rem;
+  color: var(--green);
+}
+
+.payout-val.big.fx { color: var(--blue); }
+.payout-val.big.bin { color: var(--gold); }
+
+.payout-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 6px 0;
+}
+
+/* Leverage toggle (Crypto / Forex) */
+.lev-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 11px;
+}
+
+.lev-btn {
+  flex: 1;
+  padding: 5px 0;
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--t3);
+  background: var(--bg0);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.1s;
+}
+
+.lev-btn.on { background: var(--bg3); border-color: var(--blue); color: var(--blue); }
+
+/* Order type tabs (market / limit / stop) */
+.order-type-row {
+  display: flex;
+  background: var(--bg0);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  margin-bottom: 12px;
+}
+
+.ord-tab {
+  flex: 1;
+  padding: 5px 0;
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--t3);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.12s;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+.ord-tab.on { background: var(--bg3); color: var(--t1); }
+
+/* Binary options specific */
+.binary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 11px;
+}
+
+.bin-stat {
+  background: var(--bg0);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.bin-stat-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.bin-stat-val {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--t1);
+  font-family: var(--mono);
+}
+
+/* BUY/SELL action buttons */
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btn-buy, .btn-sell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 8px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  gap: 2px;
+  transition: filter 0.12s, transform 0.08s;
+}
+
+.btn-buy { background: linear-gradient(150deg, #00d68f, #00a86b); color: #002818; }
+.btn-sell { background: linear-gradient(150deg, #ff3d5e, #c4203e); color: #fff; }
+
+.btn-buy:hover, .btn-sell:hover { filter: brightness(1.1); }
+.btn-buy:active, .btn-sell:active { transform: scale(0.97); }
+
+.btn-arrow { font-size: 0.9rem; font-weight: 900; line-height: 1; }
+.btn-label { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.08em; }
+.btn-sub { font-size: 0.6rem; font-weight: 700; opacity: 0.75; }
+
+/* Forex – single PLACE ORDER button */
+.btn-place {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(150deg, #4d8ef5, #2562d0);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: filter 0.12s, transform 0.08s;
+  margin-top: 4px;
+}
+
+.btn-place:hover { filter: brightness(1.1); }
+.btn-place:active { transform: scale(0.98); }
+
+/* Binary – CALL / PUT */
+.btn-call { background: linear-gradient(150deg, #00d68f, #00a86b); color: #002818; }
+.btn-put  { background: linear-gradient(150deg, #ff3d5e, #c4203e); color: #fff; }
+
+/* Countdown timer (binary) */
+.bin-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg0);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 11px;
+}
+
+.bin-timer-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.bin-timer-count {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--gold);
+  font-family: var(--mono);
+  letter-spacing: -0.5px;
+}
+
+.bin-progress {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-bottom: 11px;
+  overflow: hidden;
+}
+
+.bin-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), #ffce63);
+  border-radius: 2px;
+  transition: width 0.9s linear;
+}
+
+/* Market details */
+.r-mkt-details {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.r-mkt-details-title {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--t4);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 9px;
+}
+
+.r-mkt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.r-mkt-cell {
+  background: var(--bg0);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 7px 9px;
+}
+
+.r-mkt-cell-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--t4);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 3px;
+}
+
+.r-mkt-cell-val {
+  font-size: 0.79rem;
+  font-weight: 700;
+  color: var(--t2);
+  font-family: var(--mono);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- MODE SWITCHER BAR -->
+<div class="mode-bar">
+  <button class="mode-btn on" id="mb-crypto" onclick="switchMode('crypto')">
+    <span class="mode-icon">₿</span> Crypto
+  </button>
+  <div class="mode-sep"></div>
+  <button class="mode-btn fx" id="mb-fx" onclick="switchMode('fx')">
+    <span class="mode-icon">💱</span> Forex
+  </button>
+  <div class="mode-sep"></div>
+  <button class="mode-btn bin" id="mb-bin" onclick="switchMode('bin')">
+    <span class="mode-icon">⚡</span> Binary
+  </button>
+  <div class="mode-live">
+    <span class="live-dot"></span> Markets Open
+  </div>
+</div>
+
+<div class="t-wrap">
+
+  <!-- ════════ LEFT SIDEBAR ════════ -->
+  <aside class="t-left">
+
+    <div class="t-search-box">
+      <span class="t-search-icon">🔍</span>
+      <input type="text" id="mkt-search" placeholder="Search markets…">
+    </div>
+
+    <div class="t-cat-tabs">
+      <button class="t-cat on" onclick="filterCat(this,'all')">All</button>
+      <button class="t-cat" onclick="filterCat(this,'crypto')">Crypto</button>
+      <button class="t-cat" onclick="filterCat(this,'fx')">Forex</button>
+      <button class="t-cat" onclick="filterCat(this,'bin')">Binary</button>
+    </div>
+
+    <div class="t-mkt-list" id="mkt-list">
+
+      <!-- ── CRYPTO ── -->
+      <div class="t-grp-hd" data-cat="crypto">Cryptocurrency</div>
+
+      <div class="t-mkt-row on" data-cat="crypto" data-mode="crypto"
+           onclick="pickMkt(this,'BINANCE:BTCUSDT','BTC/USD','BTCUSDT','crypto')">
+        <div class="t-mkt-icon" style="background:#F7931A20;color:#F7931A;">₿</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">BTC/USD</div>
+          <div class="t-mkt-name">Bitcoin</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-BTCUSDT">—</div>
+          <div class="t-mkt-chg up" id="chg-BTCUSDT">—</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="crypto" data-mode="crypto"
+           onclick="pickMkt(this,'BINANCE:ETHUSDT','ETH/USD','ETHUSDT','crypto')">
+        <div class="t-mkt-icon" style="background:#627EEA20;color:#627EEA;">Ξ</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">ETH/USD</div>
+          <div class="t-mkt-name">Ethereum</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-ETHUSDT">—</div>
+          <div class="t-mkt-chg up" id="chg-ETHUSDT">—</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="crypto" data-mode="crypto"
+           onclick="pickMkt(this,'BINANCE:SOLUSDT','SOL/USD','SOLUSDT','crypto')">
+        <div class="t-mkt-icon" style="background:#9945FF20;color:#9945FF;">◎</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">SOL/USD</div>
+          <div class="t-mkt-name">Solana</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-SOLUSDT">—</div>
+          <div class="t-mkt-chg up" id="chg-SOLUSDT">—</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="crypto" data-mode="crypto"
+           onclick="pickMkt(this,'BINANCE:BNBUSDT','BNB/USD','BNBUSDT','crypto')">
+        <div class="t-mkt-icon" style="background:#F3BA2F20;color:#F3BA2F;">B</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">BNB/USD</div>
+          <div class="t-mkt-name">BNB</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-BNBUSDT">—</div>
+          <div class="t-mkt-chg up" id="chg-BNBUSDT">—</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="crypto" data-mode="crypto"
+           onclick="pickMkt(this,'BINANCE:XRPUSDT','XRP/USD','XRPUSDT','crypto')">
+        <div class="t-mkt-icon" style="background:#00AAE420;color:#00AAE4;">✦</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">XRP/USD</div>
+          <div class="t-mkt-name">Ripple</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-XRPUSDT">—</div>
+          <div class="t-mkt-chg up" id="chg-XRPUSDT">—</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="crypto" data-mode="crypto"
+           onclick="pickMkt(this,'BINANCE:ADAUSDT','ADA/USD','ADAUSDT','crypto')">
+        <div class="t-mkt-icon" style="background:#0033AD20;color:#5580ff;">₳</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">ADA/USD</div>
+          <div class="t-mkt-name">Cardano</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-ADAUSDT">—</div>
+          <div class="t-mkt-chg up" id="chg-ADAUSDT">—</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="crypto" data-mode="crypto"
+           onclick="pickMkt(this,'BINANCE:DOGEUSDT','DOGE/USD','DOGEUSDT','crypto')">
+        <div class="t-mkt-icon" style="background:#C2A63320;color:#C2A633;">Ð</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">DOGE/USD</div>
+          <div class="t-mkt-name">Dogecoin</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-DOGEUSDT">—</div>
+          <div class="t-mkt-chg up" id="chg-DOGEUSDT">—</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="crypto" data-mode="crypto"
+           onclick="pickMkt(this,'BINANCE:AVAXUSDT','AVAX/USD','AVAXUSDT','crypto')">
+        <div class="t-mkt-icon" style="background:#E8413520;color:#E84135;">▲</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">AVAX/USD</div>
+          <div class="t-mkt-name">Avalanche</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-AVAXUSDT">—</div>
+          <div class="t-mkt-chg up" id="chg-AVAXUSDT">—</div>
+        </div>
+      </div>
+
+      <!-- ── FOREX ── -->
+      <div class="t-grp-hd" data-cat="fx">Forex</div>
+
+      <div class="t-mkt-row" data-cat="fx" data-mode="fx"
+           onclick="pickMkt(this,'FX:EURUSD','EUR/USD',null,'fx')">
+        <div class="t-mkt-icon" style="background:#4d8ef520;color:#4d8ef5;font-size:0.7rem;">EUR</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">EUR/USD</div>
+          <div class="t-mkt-name">Euro / Dollar</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px">1.0842</div>
+          <div class="t-mkt-chg up">+0.12%</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="fx" data-mode="fx"
+           onclick="pickMkt(this,'FX:GBPUSD','GBP/USD',null,'fx')">
+        <div class="t-mkt-icon" style="background:#4d8ef520;color:#4d8ef5;font-size:0.7rem;">GBP</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">GBP/USD</div>
+          <div class="t-mkt-name">Pound / Dollar</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px">1.2715</div>
+          <div class="t-mkt-chg dn">-0.08%</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="fx" data-mode="fx"
+           onclick="pickMkt(this,'FX:USDJPY','USD/JPY',null,'fx')">
+        <div class="t-mkt-icon" style="background:#4d8ef520;color:#4d8ef5;font-size:0.7rem;">JPY</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">USD/JPY</div>
+          <div class="t-mkt-name">Dollar / Yen</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px">157.42</div>
+          <div class="t-mkt-chg up">+0.31%</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="fx" data-mode="fx"
+           onclick="pickMkt(this,'FX:USDCHF','USD/CHF',null,'fx')">
+        <div class="t-mkt-icon" style="background:#4d8ef520;color:#4d8ef5;font-size:0.7rem;">CHF</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">USD/CHF</div>
+          <div class="t-mkt-name">Dollar / Franc</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px">0.9031</div>
+          <div class="t-mkt-chg dn">-0.05%</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="fx" data-mode="fx"
+           onclick="pickMkt(this,'FX:AUDUSD','AUD/USD',null,'fx')">
+        <div class="t-mkt-icon" style="background:#4d8ef520;color:#4d8ef5;font-size:0.7rem;">AUD</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">AUD/USD</div>
+          <div class="t-mkt-name">Australian Dollar</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px">0.6488</div>
+          <div class="t-mkt-chg up">+0.19%</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="fx" data-mode="fx"
+           onclick="pickMkt(this,'FX:USDCAD','USD/CAD',null,'fx')">
+        <div class="t-mkt-icon" style="background:#4d8ef520;color:#4d8ef5;font-size:0.7rem;">CAD</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">USD/CAD</div>
+          <div class="t-mkt-name">Dollar / Canadian</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px">1.3654</div>
+          <div class="t-mkt-chg dn">-0.10%</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="fx" data-mode="fx"
+           onclick="pickMkt(this,'FX:EURGBP','EUR/GBP',null,'fx')">
+        <div class="t-mkt-icon" style="background:#4d8ef520;color:#4d8ef5;font-size:0.65rem;">E/G</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">EUR/GBP</div>
+          <div class="t-mkt-name">Euro / Pound</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px">0.8527</div>
+          <div class="t-mkt-chg up">+0.04%</div>
+        </div>
+      </div>
+
+      <!-- ── BINARY ── -->
+      <div class="t-grp-hd" data-cat="bin">Binary Options</div>
+
+      <div class="t-mkt-row" data-cat="bin" data-mode="bin"
+           onclick="pickMkt(this,'BINANCE:BTCUSDT','BTC Binary','BTCUSDT','bin')">
+        <div class="t-mkt-icon" style="background:#f5a62320;color:#f5a623;font-size:0.7rem;">⚡</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">BTC Binary</div>
+          <div class="t-mkt-name">Bitcoin · 85% payout</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-BTC-bin">—</div>
+          <div class="t-mkt-chg up" id="chg-BTC-bin">—</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="bin" data-mode="bin"
+           onclick="pickMkt(this,'BINANCE:ETHUSDT','ETH Binary','ETHUSDT','bin')">
+        <div class="t-mkt-icon" style="background:#f5a62320;color:#f5a623;font-size:0.7rem;">⚡</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">ETH Binary</div>
+          <div class="t-mkt-name">Ethereum · 82% payout</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-ETH-bin">—</div>
+          <div class="t-mkt-chg up" id="chg-ETH-bin">—</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="bin" data-mode="bin"
+           onclick="pickMkt(this,'FX:EURUSD','EUR/USD Binary',null,'bin')">
+        <div class="t-mkt-icon" style="background:#f5a62320;color:#f5a623;font-size:0.7rem;">⚡</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">EUR/USD Binary</div>
+          <div class="t-mkt-name">Forex Binary · 80%</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px">1.0842</div>
+          <div class="t-mkt-chg up">+0.12%</div>
+        </div>
+      </div>
+
+      <div class="t-mkt-row" data-cat="bin" data-mode="bin"
+           onclick="pickMkt(this,'BINANCE:SOLUSDT','SOL Binary','SOLUSDT','bin')">
+        <div class="t-mkt-icon" style="background:#f5a62320;color:#f5a623;font-size:0.7rem;">⚡</div>
+        <div class="t-mkt-info">
+          <div class="t-mkt-sym">SOL Binary</div>
+          <div class="t-mkt-name">Solana · 88% payout</div>
+        </div>
+        <div class="t-mkt-vals">
+          <div class="t-mkt-px" id="px-SOL-bin">—</div>
+          <div class="t-mkt-chg up" id="chg-SOL-bin">—</div>
+        </div>
+      </div>
+
+    </div><!-- /mkt-list -->
+  </aside>
+
+  <!-- ════════ CENTER ════════ -->
+  <main class="t-center">
+
+    <!-- Ticker bar -->
+    <div class="t-ticker">
+      <span class="tk-sym" id="tk-sym">BTC/USD</span>
+      <span class="tk-px" id="tk-px">$—</span>
+      <span class="tk-badge up" id="tk-badge">+0.00%</span>
+      <div class="tk-sep"></div>
+      <div class="tk-stats">
+        <div class="tk-stat">
+          <span class="tk-stat-label">24h High</span>
+          <span class="tk-stat-val up" id="tk-high">—</span>
+        </div>
+        <div class="tk-stat">
+          <span class="tk-stat-label">24h Low</span>
+          <span class="tk-stat-val dn" id="tk-low">—</span>
+        </div>
+        <div class="tk-stat">
+          <span class="tk-stat-label">Volume</span>
+          <span class="tk-stat-val" id="tk-vol">—</span>
+        </div>
+        <div class="tk-stat">
+          <span class="tk-stat-label">Spread</span>
+          <span class="tk-stat-val" id="tk-spread">0.01%</span>
+        </div>
+        <div class="tk-stat">
+          <span class="tk-stat-label">Mode</span>
+          <span class="tk-stat-val" id="tk-mode" style="color:var(--green);">CRYPTO</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart toolbar -->
+    <div class="t-toolbar">
+      <button class="tf-btn" onclick="setTF(this,'1')">1m</button>
+      <button class="tf-btn" onclick="setTF(this,'3')">3m</button>
+      <button class="tf-btn on" onclick="setTF(this,'5')">5m</button>
+      <button class="tf-btn" onclick="setTF(this,'15')">15m</button>
+      <button class="tf-btn" onclick="setTF(this,'30')">30m</button>
+      <button class="tf-btn" onclick="setTF(this,'60')">1H</button>
+      <button class="tf-btn" onclick="setTF(this,'240')">4H</button>
+      <button class="tf-btn" onclick="setTF(this,'D')">1D</button>
+      <button class="tf-btn" onclick="setTF(this,'W')">1W</button>
+      <div class="t-toolbar-sep"></div>
+      <button class="tf-btn on" title="Candlestick" onclick="setChartStyle(this,1)">🕯</button>
+      <button class="tf-btn" title="Line" onclick="setChartStyle(this,2)">📈</button>
+      <button class="tf-btn" title="Area" onclick="setChartStyle(this,3)">▤</button>
+      <button class="tf-btn" title="Bars" onclick="setChartStyle(this,0)">▌</button>
+    </div>
+
+    <!-- TradingView Chart -->
+    <div class="t-chart">
+      <div id="tv-chart"></div>
+    </div>
+
+    <!-- Bottom positions table -->
+    <div class="t-bottom">
+      <div class="t-btabs">
+        <div class="t-btab on" onclick="switchBTab(this)">Open Positions</div>
+        <div class="t-btab" onclick="switchBTab(this)">Trade History</div>
+        <div class="t-btab" onclick="switchBTab(this)">Open Orders</div>
+      </div>
+      <div class="t-pos-table-wrap">
+        {% if trades %}
+        <table class="t-pos-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Market</th>
+              <th>Mode</th>
+              <th>Stake</th>
+              <th>Entry</th>
+              <th>Current</th>
+              <th>P&amp;L</th>
+              <th>Status</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for trade in trades %}
+            <tr>
+              <td>
+                <span class="badge {% if trade.trade_type == 'BUY' %}badge-buy{% else %}badge-sell{% endif %}">
+                  {% if trade.trade_type == 'BUY' %}▲ BUY{% else %}▼ SELL{% endif %}
+                </span>
+              </td>
+              <td style="color:var(--t1);font-weight:700;">{{ trade.symbol }}</td>
+              <td><span class="badge badge-open">CRYPTO</span></td>
+              <td>${{ trade.total_value }}</td>
+              <td>—</td>
+              <td>—</td>
+              <td style="color:var(--t4);">—</td>
+              <td><span class="badge badge-open">{{ trade.status }}</span></td>
+              <td style="color:var(--t3);">{{ trade.created_at|date:"H:i:s" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="t-empty">
+          <span style="font-size:1.5rem;">📊</span>
+          No open positions — select a market and place your first trade
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ════════ RIGHT PANEL ════════ -->
+  <aside class="t-right">
+    <div class="r-right-scroll">
+
+      <!-- Balance -->
+      <div class="r-balance">
+        <div class="r-bal-row">
+          <span class="r-bal-label">Account Balance</span>
+          <div class="r-live-badge"><span class="r-live-dot"></span>Live</div>
+        </div>
+        <div class="r-bal-amount">${{ user.balance }}</div>
+        <div class="r-bal-sub">USD · Demo Account</div>
+        <div class="r-bal-btns">
+          <a href="/wallet/" class="r-bal-btn">+ Deposit</a>
+          <a href="/wallet/" class="r-bal-btn">Withdraw</a>
+        </div>
+      </div>
+
+      <!-- Trade Form -->
+      <div class="r-form">
+        <div class="r-form-hd">
+          <span class="r-form-title" id="form-title">Crypto Trade</span>
+        </div>
+
+        <!-- ══ CRYPTO FORM ══ -->
+        <div class="form-panel on" id="form-crypto">
+          <form method="POST" action="/trading/trade/">
+            {% csrf_token %}
+
+            <div class="f-field">
+              <label class="f-label">Symbol</label>
+              <div class="f-select-wrap">
+                <select class="f-select" name="symbol" id="sel-crypto">
+                  <option value="BTC/USD">BTC/USD — Bitcoin</option>
+                  <option value="ETH/USD">ETH/USD — Ethereum</option>
+                  <option value="SOL/USD">SOL/USD — Solana</option>
+                  <option value="BNB/USD">BNB/USD — BNB</option>
+                  <option value="XRP/USD">XRP/USD — Ripple</option>
+                  <option value="ADA/USD">ADA/USD — Cardano</option>
+                  <option value="DOGE/USD">DOGE/USD — Dogecoin</option>
+                  <option value="AVAX/USD">AVAX/USD — Avalanche</option>
+                </select>
+                <span class="f-select-arr">▼</span>
+              </div>
+            </div>
+
+            <div class="f-field">
+              <label class="f-label">Order Type</label>
+              <div class="order-type-row">
+                <button type="button" class="ord-tab on" onclick="setOrdTab(this)">Market</button>
+                <button type="button" class="ord-tab" onclick="setOrdTab(this)">Limit</button>
+                <button type="button" class="ord-tab" onclick="setOrdTab(this)">Stop</button>
+              </div>
+            </div>
+
+            <div class="f-field">
+              <label class="f-label">Leverage</label>
+              <div class="lev-row">
+                <button type="button" class="lev-btn on" onclick="setLev(this)">1×</button>
+                <button type="button" class="lev-btn" onclick="setLev(this)">5×</button>
+                <button type="button" class="lev-btn" onclick="setLev(this)">10×</button>
+                <button type="button" class="lev-btn" onclick="setLev(this)">20×</button>
+                <button type="button" class="lev-btn" onclick="setLev(this)">50×</button>
+              </div>
+            </div>
+
+            <div class="f-field">
+              <label class="f-label">Amount (USD)</label>
+              <div class="f-prefix-wrap">
+                <span class="f-prefix">$</span>
+                <input class="f-input has-prefix has-suffix" type="number" name="quantity"
+                       id="amt-crypto" step="1" min="1" placeholder="0"
+                       oninput="calcPayout('crypto',this.value)">
+                <span class="f-suffix">USD</span>
+              </div>
+            </div>
+
+            <div class="quick-row">
+              <button type="button" class="q-btn" onclick="addAmt('crypto',10)">+$10</button>
+              <button type="button" class="q-btn" onclick="addAmt('crypto',50)">+$50</button>
+              <button type="button" class="q-btn" onclick="addAmt('crypto',100)">+$100</button>
+              <button type="button" class="q-btn" onclick="clearAmt('crypto')">CLR</button>
+            </div>
+
+            <div class="payout-box">
+              <div class="payout-row">
+                <span class="payout-lbl">Margin Used</span>
+                <span class="payout-val" id="c-margin">$0.00</span>
+              </div>
+              <div class="payout-row">
+                <span class="payout-lbl">Position Size</span>
+                <span class="payout-val" id="c-pos">$0.00</span>
+              </div>
+              <hr class="payout-divider">
+              <div class="payout-row">
+                <span class="payout-lbl">Est. Profit (1%)</span>
+                <span class="payout-val big" id="c-profit">+$0.00</span>
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button type="submit" name="trade_type" value="BUY" class="btn-buy">
+                <span class="btn-arrow">▲</span>
+                <span class="btn-label">BUY</span>
+                <span class="btn-sub">Long</span>
+              </button>
+              <button type="submit" name="trade_type" value="SELL" class="btn-sell">
+                <span class="btn-arrow">▼</span>
+                <span class="btn-label">SELL</span>
+                <span class="btn-sub">Short</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ══ FOREX FORM ══ -->
+        <div class="form-panel" id="form-fx">
+          <form method="POST" action="/trading/trade/">
+            {% csrf_token %}
+
+            <div class="f-field">
+              <label class="f-label">Currency Pair</label>
+              <div class="f-select-wrap">
+                <select class="f-select" name="symbol" id="sel-fx">
+                  <option value="EUR/USD">EUR/USD — Euro / Dollar</option>
+                  <option value="GBP/USD">GBP/USD — Pound / Dollar</option>
+                  <option value="USD/JPY">USD/JPY — Dollar / Yen</option>
+                  <option value="USD/CHF">USD/CHF — Dollar / Franc</option>
+                  <option value="AUD/USD">AUD/USD — Aussie / Dollar</option>
+                  <option value="USD/CAD">USD/CAD — Dollar / Canadian</option>
+                  <option value="EUR/GBP">EUR/GBP — Euro / Pound</option>
+                </select>
+                <span class="f-select-arr">▼</span>
+              </div>
+            </div>
+
+            <div class="f-field">
+              <label class="f-label">Order Type</label>
+              <div class="order-type-row">
+                <button type="button" class="ord-tab on" onclick="setOrdTab(this)">Market</button>
+                <button type="button" class="ord-tab" onclick="setOrdTab(this)">Limit</button>
+                <button type="button" class="ord-tab" onclick="setOrdTab(this)">Stop</button>
+              </div>
+            </div>
+
+            <div class="f-field">
+              <label class="f-label">Lot Size</label>
+              <div class="lev-row">
+                <button type="button" class="lev-btn on" onclick="setLev(this)">0.01</button>
+                <button type="button" class="lev-btn" onclick="setLev(this)">0.1</button>
+                <button type="button" class="lev-btn" onclick="setLev(this)">0.5</button>
+                <button type="button" class="lev-btn" onclick="setLev(this)">1.0</button>
+              </div>
+            </div>
+
+            <div class="f-field">
+              <label class="f-label">Leverage</label>
+              <div class="lev-row">
+                <button type="button" class="lev-btn on" onclick="setLev(this)">1:10</button>
+                <button type="button" class="lev-btn" onclick="setLev(this)">1:50</button>
+                <button type="button" class="lev-btn" onclick="setLev(this)">1:100</button>
+                <button type="button" class="lev-btn" onclick="setLev(this)">1:500</button>
+              </div>
+            </div>
+
+            <div class="f-field">
+              <label class="f-label">Margin (USD)</label>
+              <div class="f-prefix-wrap">
+                <span class="f-prefix">$</span>
+                <input class="f-input has-prefix has-suffix" type="number" name="quantity"
+                       id="amt-fx" step="1" min="1" placeholder="0"
+                       oninput="calcPayout('fx',this.value)">
+                <span class="f-suffix">USD</span>
+              </div>
+            </div>
+
+            <div class="quick-row">
+              <button type="button" class="q-btn" onclick="addAmt('fx',10)">+$10</button>
+              <button type="button" class="q-btn" onclick="addAmt('fx',50)">+$50</button>
+              <button type="button" class="q-btn" onclick="addAmt('fx',100)">+$100</button>
+              <button type="button" class="q-btn" onclick="clearAmt('fx')">CLR</button>
+            </div>
+
+            <div class="payout-box">
+              <div class="payout-row">
+                <span class="payout-lbl">Spread Cost</span>
+                <span class="payout-val" id="fx-spread">$0.00</span>
+              </div>
+              <div class="payout-row">
+                <span class="payout-lbl">Pip Value</span>
+                <span class="payout-val" id="fx-pip">$0.00</span>
+              </div>
+              <hr class="payout-divider">
+              <div class="payout-row">
+                <span class="payout-lbl">Position Value</span>
+                <span class="payout-val big fx" id="fx-position">$0.00</span>
+              </div>
+            </div>
+
+            <button type="submit" name="trade_type" value="BUY" class="btn-place" style="margin-bottom:8px;">
+              ▲ BUY / LONG
+            </button>
+            <button type="submit" name="trade_type" value="SELL"
+                    class="btn-place" style="background:linear-gradient(150deg,#ff3d5e,#c4203e);">
+              ▼ SELL / SHORT
+            </button>
+          </form>
+        </div>
+
+        <!-- ══ BINARY FORM ══ -->
+        <div class="form-panel" id="form-bin">
+          <form method="POST" action="/trading/trade/">
+            {% csrf_token %}
+
+            <div class="f-field">
+              <label class="f-label">Asset</label>
+              <div class="f-select-wrap">
+                <select class="f-select" name="symbol" id="sel-bin">
+                  <option value="BTC/USD">BTC/USD — 85% payout</option>
+                  <option value="ETH/USD">ETH/USD — 82% payout</option>
+                  <option value="SOL/USD">SOL/USD — 88% payout</option>
+                  <option value="EUR/USD">EUR/USD — 80% payout</option>
+                  <option value="GBP/USD">GBP/USD — 78% payout</option>
+                </select>
+                <span class="f-select-arr">▼</span>
+              </div>
+            </div>
+
+            <div class="f-field">
+              <label class="f-label">Expiry Time</label>
+              <div class="dur-row cols5">
+                <button type="button" class="dur-pill bin" onclick="setBinExpiry(this,60,'1m')">1m</button>
+                <button type="button" class="dur-pill bin on" onclick="setBinExpiry(this,300,'5m')">5m</button>
+                <button type="button" class="dur-pill bin" onclick="setBinExpiry(this,900,'15m')">15m</button>
+                <button type="button" class="dur-pill bin" onclick="setBinExpiry(this,1800,'30m')">30m</button>
+                <button type="button" class="dur-pill bin" onclick="setBinExpiry(this,3600,'1h')">1h</button>
+              </div>
+            </div>
+
+            <!-- Countdown timer -->
+            <div class="bin-timer">
+              <span class="bin-timer-label">Expires in</span>
+              <span class="bin-timer-count" id="bin-countdown">05:00</span>
+            </div>
+            <div class="bin-progress">
+              <div class="bin-progress-bar" id="bin-progress-bar" style="width:100%"></div>
+            </div>
+
+            <!-- Binary stats -->
+            <div class="binary-grid">
+              <div class="bin-stat">
+                <div class="bin-stat-label">Payout</div>
+                <div class="bin-stat-val" id="bin-payout-pct" style="color:var(--gold);">85%</div>
+              </div>
+              <div class="bin-stat">
+                <div class="bin-stat-label">Win Rate</div>
+                <div class="bin-stat-val" style="color:var(--t2);">—</div>
+              </div>
+            </div>
+
+            <div class="f-field">
+              <label class="f-label">Investment Amount</label>
+              <div class="f-prefix-wrap">
+                <span class="f-prefix">$</span>
+                <input class="f-input has-prefix has-suffix" type="number" name="quantity"
+                       id="amt-bin" step="1" min="1" placeholder="0"
+                       oninput="calcPayout('bin',this.value)">
+                <span class="f-suffix">USD</span>
+              </div>
+            </div>
+
+            <div class="quick-row">
+              <button type="button" class="q-btn" onclick="addAmt('bin',5)">+$5</button>
+              <button type="button" class="q-btn" onclick="addAmt('bin',10)">+$10</button>
+              <button type="button" class="q-btn" onclick="addAmt('bin',25)">+$25</button>
+              <button type="button" class="q-btn" onclick="clearAmt('bin')">CLR</button>
+            </div>
+
+            <div class="payout-box">
+              <div class="payout-row">
+                <span class="payout-lbl">Investment</span>
+                <span class="payout-val" id="bin-invest">$0.00</span>
+              </div>
+              <div class="payout-row">
+                <span class="payout-lbl">Potential Profit</span>
+                <span class="payout-val" id="bin-profit-amt" style="color:var(--green);">+$0.00</span>
+              </div>
+              <hr class="payout-divider">
+              <div class="payout-row">
+                <span class="payout-lbl">Total Payout</span>
+                <span class="payout-val big bin" id="bin-total">$0.00</span>
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button type="submit" name="trade_type" value="BUY" class="btn-buy btn-call">
+                <span class="btn-arrow">▲</span>
+                <span class="btn-label">CALL</span>
+                <span class="btn-sub">Price rises</span>
+              </button>
+              <button type="submit" name="trade_type" value="SELL" class="btn-sell btn-put">
+                <span class="btn-arrow">▼</span>
+                <span class="btn-label">PUT</span>
+                <span class="btn-sub">Price falls</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+      </div><!-- /r-form -->
+
+      <!-- Market details -->
+      <div class="r-mkt-details">
+        <div class="r-mkt-details-title">Market Details</div>
+        <div class="r-mkt-grid">
+          <div class="r-mkt-cell">
+            <div class="r-mkt-cell-label">24h High</div>
+            <div class="r-mkt-cell-val up" id="info-high">—</div>
+          </div>
+          <div class="r-mkt-cell">
+            <div class="r-mkt-cell-label">24h Low</div>
+            <div class="r-mkt-cell-val dn" id="info-low">—</div>
+          </div>
+          <div class="r-mkt-cell">
+            <div class="r-mkt-cell-label">Volume</div>
+            <div class="r-mkt-cell-val" id="info-vol">—</div>
+          </div>
+          <div class="r-mkt-cell">
+            <div class="r-mkt-cell-label">24h Change</div>
+            <div class="r-mkt-cell-val" id="info-chg">—</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /r-right-scroll -->
+  </aside>
+
+</div><!-- /t-wrap -->
+
+<!-- ════════ SCRIPTS ════════ -->
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+// ── STATE ──
+var S = {
+  mode: 'crypto',
+  tvSym: 'BINANCE:BTCUSDT',
+  binanceSym: 'BTCUSDT',
+  tf: '5',
+  chartStyle: 1,
+  binExpiry: 300,
+  binExpiryLabel: '5m',
+  binTimerInterval: null,
+  binTimerRemaining: 300,
+};
+
+// ── CHART ──
+function initChart() {
+  document.getElementById('tv-chart').innerHTML = '';
+  new TradingView.widget({
+    container_id: 'tv-chart',
+    symbol: S.tvSym,
+    interval: S.tf,
+    timezone: 'Etc/UTC',
+    theme: 'dark',
+    style: String(S.chartStyle),
+    locale: 'en',
+    toolbar_bg: '#0a1020',
+    enable_publishing: false,
+    allow_symbol_change: false,
+    withdateranges: true,
+    save_image: false,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#060b14',
+    gridColor: '#1c2a42',
+    studies: S.mode === 'bin'
+      ? ['RSI@tv-basicstudies','BB@tv-basicstudies']
+      : ['RSI@tv-basicstudies','MACD@tv-basicstudies'],
+  });
+}
+
+initChart();
+
+// ── MODE SWITCH ──
+function switchMode(mode) {
+  S.mode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('mb-' + mode).classList.add('on');
+
+  document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('on'));
+  document.getElementById('form-' + mode).classList.add('on');
+
+  var titles = { crypto: 'Crypto Trade', fx: 'Forex Trade', bin: 'Binary Option' };
+  document.getElementById('form-title').textContent = titles[mode];
+
+  var modeLabels = { crypto: 'CRYPTO', fx: 'FOREX', bin: 'BINARY' };
+  var modeColors = { crypto: 'var(--green)', fx: 'var(--blue)', bin: 'var(--gold)' };
+  var modeEl = document.getElementById('tk-mode');
+  modeEl.textContent = modeLabels[mode];
+  modeEl.style.color = modeColors[mode];
+
+  // Switch to a sensible default instrument
+  if (mode === 'fx') {
+    S.tvSym = 'FX:EURUSD';
+    S.binanceSym = null;
+    document.getElementById('tk-sym').textContent = 'EUR/USD';
+    document.getElementById('tk-px').textContent = '1.0842';
+  } else if (mode === 'bin') {
+    S.tvSym = 'BINANCE:BTCUSDT';
+    S.binanceSym = 'BTCUSDT';
+    document.getElementById('tk-sym').textContent = 'BTC Binary';
+    startBinTimer();
+  } else {
+    S.tvSym = 'BINANCE:BTCUSDT';
+    S.binanceSym = 'BTCUSDT';
+    document.getElementById('tk-sym').textContent = 'BTC/USD';
+  }
+
+  initChart();
+}
+
+// ── PICK MARKET ──
+function pickMkt(el, tvSym, displayName, binanceSym, mode) {
+  document.querySelectorAll('.t-mkt-row').forEach(r => r.classList.remove('on'));
+  el.classList.add('on');
+  S.tvSym = tvSym;
+  S.binanceSym = binanceSym;
+  document.getElementById('tk-sym').textContent = displayName;
+
+  // Auto-switch mode based on market
+  if (mode !== S.mode) switchMode(mode);
+  else initChart();
+
+  if (binanceSym) fetchSingle(binanceSym);
+}
+
+// ── TIMEFRAME ──
+function setTF(btn, tf) {
+  document.querySelectorAll('.tf-btn').forEach(b => { if(['1','3','5','15','30','60','240','D','W'].includes(b.textContent.replace('m','').replace('H','').replace('D','').replace('W',''))) b.classList.remove('on'); });
+  btn.classList.add('on');
+  S.tf = tf;
+  initChart();
+}
+
+// ── CHART STYLE ──
+var styleButtons = [];
+function setChartStyle(btn, style) {
+  document.querySelectorAll('.tf-btn').forEach(b => {
+    if (['🕯','📈','▤','▌'].includes(b.title === '' ? b.textContent : '')) b.classList.remove('on');
+  });
+  btn.classList.add('on');
+  S.chartStyle = style;
+  initChart();
+}
+
+// ── BOTTOM TABS ──
+function switchBTab(el) {
+  document.querySelectorAll('.t-btab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ── DURATION ──
+function setDur(btn, val) {
+  var parent = btn.closest('.dur-row');
+  parent.querySelectorAll('.dur-pill').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ── BINARY EXPIRY ──
+function setBinExpiry(btn, seconds, label) {
+  setDur(btn, seconds);
+  S.binExpiry = seconds;
+  S.binExpiryLabel = label;
+  startBinTimer();
+}
+
+function startBinTimer() {
+  if (S.binTimerInterval) clearInterval(S.binTimerInterval);
+  S.binTimerRemaining = S.binExpiry;
+  updateBinTimer();
+  S.binTimerInterval = setInterval(function() {
+    S.binTimerRemaining--;
+    if (S.binTimerRemaining <= 0) {
+      S.binTimerRemaining = S.binExpiry;
+    }
+    updateBinTimer();
+  }, 1000);
+}
+
+function updateBinTimer() {
+  var r = S.binTimerRemaining;
+  var m = Math.floor(r / 60);
+  var s = r % 60;
+  document.getElementById('bin-countdown').textContent =
+    (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  var pct = (S.binTimerRemaining / S.binExpiry) * 100;
+  document.getElementById('bin-progress-bar').style.width = pct + '%';
+}
+
+startBinTimer();
+
+// ── ORDER TYPE TABS ──
+function setOrdTab(btn) {
+  var parent = btn.closest('.order-type-row');
+  parent.querySelectorAll('.ord-tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ── LEVERAGE ──
+function setLev(btn) {
+  var parent = btn.closest('.lev-row');
+  parent.querySelectorAll('.lev-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ── AMOUNTS ──
+function addAmt(mode, n) {
+  var el = document.getElementById('amt-' + mode);
+  el.value = (parseFloat(el.value) || 0) + n;
+  calcPayout(mode, el.value);
+}
+
+function clearAmt(mode) {
+  var el = document.getElementById('amt-' + mode);
+  el.value = '';
+  calcPayout(mode, 0);
+}
+
+// ── PAYOUT CALC ──
+function calcPayout(mode, val) {
+  var v = parseFloat(val) || 0;
+  if (mode === 'crypto') {
+    var lev = 1;
+    var levEl = document.querySelector('#form-crypto .lev-btn.on');
+    if (levEl) lev = parseInt(levEl.textContent) || 1;
+    var pos = v * lev;
+    var profit = pos * 0.01;
+    document.getElementById('c-margin').textContent = '$' + v.toFixed(2);
+    document.getElementById('c-pos').textContent    = '$' + pos.toFixed(2);
+    document.getElementById('c-profit').textContent = '+$' + profit.toFixed(2);
+  } else if (mode === 'fx') {
+    var pos = v * 100;
+    var spread = v * 0.0002;
+    var pip = v * 0.001;
+    document.getElementById('fx-spread').textContent   = '$' + spread.toFixed(4);
+    document.getElementById('fx-pip').textContent      = '$' + pip.toFixed(4);
+    document.getElementById('fx-position').textContent = '$' + pos.toFixed(2);
+  } else if (mode === 'bin') {
+    var pctEl = document.getElementById('bin-payout-pct');
+    var pct = parseFloat(pctEl.textContent) / 100 || 0.85;
+    var profit = v * pct;
+    var total = v + profit;
+    document.getElementById('bin-invest').textContent     = '$' + v.toFixed(2);
+    document.getElementById('bin-profit-amt').textContent = '+$' + profit.toFixed(2);
+    document.getElementById('bin-total').textContent      = '$' + total.toFixed(2);
+  }
+}
+
+// ── MARKET FILTER ──
+function filterCat(btn, cat) {
+  document.querySelectorAll('.t-cat').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('#mkt-list .t-mkt-row, #mkt-list .t-grp-hd').forEach(el => {
+    el.style.display = (cat === 'all' || el.dataset.cat === cat) ? '' : 'none';
+  });
+}
+
+// ── SEARCH ──
+document.getElementById('mkt-search').addEventListener('input', function() {
+  var q = this.value.toLowerCase();
+  document.querySelectorAll('#mkt-list .t-mkt-row').forEach(el => {
+    el.style.display = (!q || el.textContent.toLowerCase().includes(q)) ? '' : 'none';
+  });
+});
+
+// ── LIVE PRICES ──
+var SYMS = ['BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT','ADAUSDT','DOGEUSDT','AVAXUSDT'];
+
+function fmtPx(p) {
+  if (p >= 10000) return '$' + p.toLocaleString(undefined,{maximumFractionDigits:0});
+  if (p >= 1000)  return '$' + p.toLocaleString(undefined,{maximumFractionDigits:2});
+  if (p >= 1)     return '$' + p.toFixed(4);
+  return '$' + p.toFixed(6);
+}
+
+function fmtVol(v) {
+  if (v >= 1e9) return (v/1e9).toFixed(2)+'B';
+  if (v >= 1e6) return (v/1e6).toFixed(1)+'M';
+  return (v/1e3).toFixed(0)+'K';
+}
+
+function fetchSingle(sym) {
+  fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=' + sym)
+    .then(r => r.json())
+    .then(function(d) {
+      var px  = parseFloat(d.lastPrice);
+      var chg = parseFloat(d.priceChangePercent);
+      var h   = parseFloat(d.highPrice);
+      var l   = parseFloat(d.lowPrice);
+      var vol = parseFloat(d.quoteVolume);
+      var chgAbs = parseFloat(d.priceChange);
+
+      // Sidebar
+      var pxEl  = document.getElementById('px-' + sym);
+      var chgEl = document.getElementById('chg-' + sym);
+      if (pxEl)  pxEl.textContent = fmtPx(px);
+      if (chgEl) {
+        chgEl.textContent = (chg>=0?'+':'') + chg.toFixed(2) + '%';
+        chgEl.className = 't-mkt-chg ' + (chg>=0?'up':'dn');
+      }
+
+      // Mirror to binary rows
+      var bpxEl  = document.getElementById('px-' + sym.replace('USDT','-bin'));
+      var bchgEl = document.getElementById('chg-' + sym.replace('USDT','-bin'));
+      if (bpxEl)  bpxEl.textContent  = fmtPx(px);
+      if (bchgEl) {
+        bchgEl.textContent = (chg>=0?'+':'') + chg.toFixed(2) + '%';
+        bchgEl.className = 't-mkt-chg ' + (chg>=0?'up':'dn');
+      }
+
+      // Active instrument ticker
+      if (sym === S.binanceSym) {
+        document.getElementById('tk-px').textContent = fmtPx(px);
+        var badge = document.getElementById('tk-badge');
+        badge.textContent = (chg>=0?'+':'') + chg.toFixed(2) + '%';
+        badge.className = 'tk-badge ' + (chg>=0?'up':'dn');
+        document.getElementById('tk-high').textContent = fmtPx(h);
+        document.getElementById('tk-low').textContent  = fmtPx(l);
+        document.getElementById('tk-vol').textContent  = fmtVol(vol);
+        document.getElementById('info-high').textContent = fmtPx(h);
+        document.getElementById('info-low').textContent  = fmtPx(l);
+        document.getElementById('info-vol').textContent  = fmtVol(vol);
+        var ic = document.getElementById('info-chg');
+        ic.textContent = (chg>=0?'+':'') + chg.toFixed(2) + '%';
+        ic.className = 'r-mkt-cell-val ' + (chg>=0?'up':'dn');
+      }
+    }).catch(()=>{});
+}
+
+function fetchAll() { SYMS.forEach(fetchSingle); }
+fetchAll();
+setInterval(fetchAll, 2500);
+</script>
+
+{% endblock %}

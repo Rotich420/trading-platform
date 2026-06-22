@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Wallet — TradeX Pro{% endblock %}
+{% block nav_wallet %}active{% endblock %}
+
+{% block content %}
+<div class="wallet-layout">
+
+    <div class="page-header">
+        <h1 class="page-title">Wallet</h1>
+        <p class="page-subtitle">Manage your funds and view transaction history</p>
+    </div>
+
+    <!-- Stats row -->
+    <div class="wallet-top">
+        <div class="stat-card">
+            <div class="stat-card-label">Available Balance</div>
+            <div class="stat-card-value green">${{ user.balance }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-label">Total Deposited</div>
+            <div class="stat-card-value">
+                ${% with total=transactions %}
+                    {% for tx in transactions %}{% if tx.transaction_type == 'DEPOSIT' %}{{ tx.amount }}{% endif %}{% endfor %}
+                {% endwith %}—
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-label">Transactions</div>
+            <div class="stat-card-value">{{ transactions|length }}</div>
+        </div>
+    </div>
+
+    <!-- Deposit / Withdraw -->
+    <div class="wallet-actions">
+        <div class="action-card">
+            <div class="action-card-title">
+                <div class="action-icon action-icon-green">↓</div>
+                Deposit Funds
+            </div>
+            <form method="POST" action="/wallet/deposit/">
+                {% csrf_token %}
+                <input class="action-input" type="number" name="amount"
+                       placeholder="0.00" step="0.01" min="1" required>
+                <button type="submit" class="action-btn action-btn-deposit">Deposit</button>
+            </form>
+        </div>
+
+        <div class="action-card">
+            <div class="action-card-title">
+                <div class="action-icon action-icon-red">↑</div>
+                Withdraw Funds
+            </div>
+            <form method="POST" action="/wallet/withdraw/">
+                {% csrf_token %}
+                <input class="action-input" type="number" name="amount"
+                       placeholder="0.00" step="0.01" min="1" required>
+                <button type="submit" class="action-btn action-btn-withdraw">Withdraw</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transaction history -->
+    <div class="txn-card">
+        <div class="txn-card-header">
+            Transaction History
+            <span class="text-muted" style="font-size:0.75rem;">{{ transactions|length }} records</span>
+        </div>
+
+        {% if transactions %}
+        <table class="txn-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                <tr>
+                    <td>
+                        <span class="{% if tx.transaction_type == 'DEPOSIT' %}txn-type-deposit{% else %}txn-type-withdraw{% endif %}">
+                            {{ tx.transaction_type }}
+                        </span>
+                    </td>
+                    <td class="txn-amount">
+                        <span class="{% if tx.transaction_type == 'DEPOSIT' %}text-green{% else %}text-red{% endif %}">
+                            {% if tx.transaction_type == 'DEPOSIT' %}+{% else %}-{% endif %}${{ tx.amount }}
+                        </span>
+                    </td>
+                    <td class="txn-date">{{ tx.created_at|date:"M d, Y · H:i" }}</td>
+                    <td><span class="badge badge-open">Completed</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            No transactions yet. Deposit to get started.
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
