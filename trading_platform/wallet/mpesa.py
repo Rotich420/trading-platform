@@ -3,11 +3,10 @@ import requests
 from datetime import datetime
 from decouple import config
 
-CONSUMER_KEY = config("MPESA_CONSUMER_KEY")
-CONSUMER_SECRET = config("MPESA_CONSUMER_SECRET")
-SHORTCODE = config("MPESA_SHORTCODE")
-PASSKEY = config("MPESA_PASSKEY")
-CALLBACK_URL = config("MPESA_CALLBACK_URL")
+CONSUMER_KEY = config("MPESA_CONSUMER_KEY", default="")
+CONSUMER_SECRET = config("MPESA_CONSUMER_SECRET", default="")
+SHORTCODE = config("MPESA_SHORTCODE", default="")
+PASSKEY = config("MPESA_PASSKEY", default="")
 
 AUTH_URL = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
 STK_URL = "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest"
