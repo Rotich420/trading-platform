@@ -1,63 +1,185 @@
 {% extends 'base.html' %}
-{% block title %}TradeX Pro — Trade Smarter{% endblock %}
+{% block title %}TradeX — Trade Smarter{% endblock %}
 {% block nav_home %}active{% endblock %}
 
 {% block content %}
-<div class="landing-wrapper">
-    <div class="landing-inner">
+<div class="lp">
 
-        <div class="landing-badge">
-            <span class="dot"></span>
-            Live Markets · Real-time Prices
+    <!-- ============ HERO ============ -->
+    <section class="lp-hero">
+        <div class="lp-hero-inner">
+            <div class="lp-hero-text">
+                <div class="lp-eyebrow">
+                    <span class="lp-eyebrow-dot"></span>
+                    Markets open · live pricing
+                </div>
+
+                <h1 class="lp-h1">
+                    Trade the moment<br>it happens.
+                </h1>
+
+                <p class="lp-sub">
+                    TradeX gives you a single terminal for crypto, forex, and
+                    equities — built for the second between seeing a price
+                    and acting on it.
+                </p>
+
+                <div class="lp-cta">
+                    {% if user.is_authenticated %}
+                        <a class="lp-btn-primary" href="/trading/dashboard/">Open Terminal</a>
+                        <a class="lp-btn-ghost" href="/wallet/">My Wallet</a>
+                    {% else %}
+                        <a class="lp-btn-primary" href="/accounts/register/">Create free account</a>
+                        <a class="lp-btn-ghost" href="/accounts/login/">Log in</a>
+                    {% endif %}
+                </div>
+
+                <div class="lp-trust">
+                    <span><strong>$2.4B+</strong> daily volume</span>
+                    <span class="lp-trust-sep">·</span>
+                    <span><strong>50+</strong> instruments</span>
+                    <span class="lp-trust-sep">·</span>
+                    <span><strong>24/7</strong> markets</span>
+                </div>
+            </div>
+
+            <div class="lp-hero-visual">
+                <div class="lp-mock">
+                    <div class="lp-mock-head">
+                        <span class="lp-mock-symbol">BTC/USD</span>
+                        <span class="lp-mock-price">68,214.50</span>
+                        <span class="lp-mock-delta up">+2.34%</span>
+                    </div>
+                    <svg class="lp-mock-chart" viewBox="0 0 360 140" preserveAspectRatio="none">
+                        <polyline points="0,100 30,92 60,98 90,80 120,85 150,60 180,68 210,45 240,52 270,30 300,38 330,18 360,24"
+                            fill="none" stroke="#00C896" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <polygon points="0,100 30,92 60,98 90,80 120,85 150,60 180,68 210,45 240,52 270,30 300,38 330,18 360,24 360,140 0,140"
+                            fill="url(#lpGrad)" opacity="0.5" />
+                        <defs>
+                            <linearGradient id="lpGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#00C896" stop-opacity="0.35" />
+                                <stop offset="100%" stop-color="#00C896" stop-opacity="0" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="lp-mock-row">
+                        <div class="lp-mock-pill buy">Buy</div>
+                        <div class="lp-mock-pill sell">Sell</div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <h1 class="landing-h1">
-            Trade with<br>
-            <span>Precision & Speed</span>
-        </h1>
+    <!-- ============ TICKER ============ -->
+    <section class="lp-ticker-wrap" aria-label="Live market prices">
+        <div class="lp-ticker">
+            <div class="lp-ticker-track">
+                {% for i in "12" %}
+                <span class="lp-ticker-item"><b>BTC/USD</b> 68,214.50 <i class="up">▲ 2.34%</i></span>
+                <span class="lp-ticker-item"><b>ETH/USD</b> 3,481.20 <i class="up">▲ 1.12%</i></span>
+                <span class="lp-ticker-item"><b>EUR/USD</b> 1.0842 <i class="down">▼ 0.18%</i></span>
+                <span class="lp-ticker-item"><b>XAU/USD</b> 2,378.60 <i class="up">▲ 0.64%</i></span>
+                <span class="lp-ticker-item"><b>AAPL</b> 211.05 <i class="down">▼ 0.42%</i></span>
+                <span class="lp-ticker-item"><b>GBP/USD</b> 1.2715 <i class="up">▲ 0.27%</i></span>
+                <span class="lp-ticker-item"><b>SOL/USD</b> 178.92 <i class="up">▲ 3.81%</i></span>
+                <span class="lp-ticker-item"><b>TSLA</b> 342.18 <i class="down">▼ 1.05%</i></span>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
 
-        <p class="landing-sub">
-            Professional-grade trading for crypto, forex, and equities.
-            Execute in milliseconds. Track everything in real time.
-        </p>
+    <!-- ============ MARKETS ============ -->
+    <section class="lp-section">
+        <div class="lp-section-inner">
+            <div class="lp-section-head">
+                <h2 class="lp-h2">One terminal, every market</h2>
+                <p class="lp-section-sub">Switch between asset classes without switching platforms.</p>
+            </div>
 
-        <div class="landing-cta">
+            <div class="lp-markets-grid">
+                <div class="lp-market-card">
+                    <div class="lp-market-icon">₮</div>
+                    <h3>Crypto</h3>
+                    <p>BTC, ETH, SOL and 30+ pairs with sub-second execution.</p>
+                </div>
+                <div class="lp-market-card">
+                    <div class="lp-market-icon">€</div>
+                    <h3>Forex</h3>
+                    <p>Major and minor currency pairs, tight spreads, 24/5.</p>
+                </div>
+                <div class="lp-market-card">
+                    <div class="lp-market-icon">▲</div>
+                    <h3>Equities</h3>
+                    <p>Trade shares in the world's most-watched companies.</p>
+                </div>
+                <div class="lp-market-card">
+                    <div class="lp-market-icon">●</div>
+                    <h3>Commodities</h3>
+                    <p>Gold, oil, and silver priced in real time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FEATURES (asymmetric) ============ -->
+    <section class="lp-section lp-section-alt">
+        <div class="lp-section-inner">
+            <div class="lp-features">
+                <div class="lp-feature-main">
+                    <span class="lp-feature-tag">Execution</span>
+                    <h2 class="lp-h2">Built for the moment between<br>seeing and acting.</h2>
+                    <p class="lp-sub lp-sub-left">
+                        Every order on TradeX is routed the instant you confirm it.
+                        No queue, no lag, no second-guessing your fill price.
+                    </p>
+                </div>
+                <div class="lp-feature-side">
+                    <div class="lp-feature-card">
+                        <h4>Live balance tracking</h4>
+                        <p>Your wallet updates the second a trade settles — no refresh needed.</p>
+                    </div>
+                    <div class="lp-feature-card">
+                        <h4>Full trade history</h4>
+                        <p>Every buy and sell logged with price, size, and timestamp.</p>
+                    </div>
+                    <div class="lp-feature-card">
+                        <h4>Instant deposits</h4>
+                        <p>Top up your wallet and start trading in the same minute.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CTA BAND (dark) ============ -->
+    <section class="lp-cta-band">
+        <div class="lp-cta-band-inner">
+            <h2>Your terminal is ready.</h2>
+            <p>Create an account and place your first trade in under a minute.</p>
             {% if user.is_authenticated %}
-                <a class="btn-primary" href="/trading/dashboard/">
-                    Open Trading Terminal →
-                </a>
-                <a class="btn-secondary" href="/wallet/">
-                    My Wallet
-                </a>
+                <a class="lp-btn-primary" href="/trading/dashboard/">Open Terminal</a>
             {% else %}
-                <a class="btn-primary" href="/accounts/register/">
-                    Start Trading Free
-                </a>
-                <a class="btn-secondary" href="/accounts/login/">
-                    Sign In
-                </a>
+                <a class="lp-btn-primary" href="/accounts/register/">Start Trading Free</a>
             {% endif %}
         </div>
+    </section>
 
-        <div class="landing-stats">
-            <div>
-                <div class="landing-stat-num">$2.4B+</div>
-                <div class="landing-stat-label">Daily Volume</div>
+    <!-- ============ FOOTER ============ -->
+    <footer class="lp-footer">
+        <div class="lp-footer-inner">
+            <div class="lp-footer-brand">
+                <span class="lp-footer-dot"></span> TradeX
             </div>
-            <div>
-                <div class="landing-stat-num">85%</div>
-                <div class="landing-stat-label">Max Payout</div>
+            <div class="lp-footer-links">
+                <a href="/trading/">Markets</a>
+                <a href="/trading/dashboard/">Trade</a>
+                <a href="/wallet/">Wallet</a>
+                <a href="/accounts/login/">Log in</a>
             </div>
-            <div>
-                <div class="landing-stat-num">50+</div>
-                <div class="landing-stat-label">Instruments</div>
-            </div>
-            <div>
-                <div class="landing-stat-num">24/7</div>
-                <div class="landing-stat-label">Markets Open</div>
-            </div>
+            <div class="lp-footer-copy">© 2026 TradeX. All rights reserved.</div>
         </div>
+    </footer>
 
-    </div>
 </div>
 {% endblock %}
