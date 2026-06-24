@@ -2,6 +2,7 @@
 
 pip install -r requirements.txt
 
-python manage.py collectstatic --noinput
+cd trading_platform
 
+python manage.py collectstatic --noinput
 python manage.py migrate
